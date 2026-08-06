@@ -1,0 +1,389 @@
+{
+  "name": "SwellSurf - 2 - book it",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -660,
+        40
+      ],
+      "id": "8e9487e9-9b7a-509f-ae64-7a3106506a80",
+      "name": "When the crew says yes"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -660,
+        260
+      ],
+      "id": "3384d26b-6d61-545d-8c6e-229dbbccef3e",
+      "name": "Run once (manual test)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "34621fc2-8d61-562c-8ee4-cdb8950b41fb",
+              "name": "eventKey",
+              "value": "test:2026-08-20",
+              "type": "string"
+            },
+            {
+              "id": "d2395baa-7c3d-51b2-9da2-26abd73e03f5",
+              "name": "spotName",
+              "value": "Uluwatu",
+              "type": "string"
+            },
+            {
+              "id": "2bced9ce-44ae-515b-88f3-a3f183f69a83",
+              "name": "departDate",
+              "value": "2026-08-20",
+              "type": "string"
+            },
+            {
+              "id": "ef9b3706-d37d-5b13-9b8d-290cc1350fb7",
+              "name": "returnDate",
+              "value": "2026-08-24",
+              "type": "string"
+            },
+            {
+              "id": "91236839-8488-52b4-ae3a-7f3040d51088",
+              "name": "firingDays",
+              "value": 3,
+              "type": "number"
+            },
+            {
+              "id": "f42d5572-863f-52dc-9546-4057ca7ce14e",
+              "name": "peakSurf",
+              "value": "6-8ft",
+              "type": "string"
+            },
+            {
+              "id": "8816e50c-88e4-514a-9b3c-89ace896bf8f",
+              "name": "forecastLines",
+              "value": "2026-08-20   6-8ft   2.1m @ 14s SW   8kt E",
+              "type": "string"
+            },
+            {
+              "id": "a5d489e7-faec-573d-809e-6c1c61cd8b8d",
+              "name": "origin",
+              "value": "PER",
+              "type": "string"
+            },
+            {
+              "id": "75eb2d31-7544-579c-b3c6-ca3bfdca677f",
+              "name": "destination",
+              "value": "DPS",
+              "type": "string"
+            },
+            {
+              "id": "e436759b-e3d7-55ac-ace8-101caa3df919",
+              "name": "stayNear",
+              "value": "Uluwatu Bali",
+              "type": "string"
+            },
+            {
+              "id": "189942de-9fad-5c6f-bff0-3ab79f09f309",
+              "name": "adults",
+              "value": 1,
+              "type": "number"
+            },
+            {
+              "id": "a2d0edc2-60be-5e44-8470-7ce4cb0a94eb",
+              "name": "currency",
+              "value": "AUD",
+              "type": "string"
+            },
+            {
+              "id": "69a7562c-fcf3-506b-a5ca-b576a411320c",
+              "name": "telegramChatId",
+              "value": "YOUR_CHAT_ID",
+              "type": "string"
+            },
+            {
+              "id": "5246c9dc-46df-5eeb-a9f9-889b9786a18f",
+              "name": "flights",
+              "value": "={{ [] }}",
+              "type": "array"
+            },
+            {
+              "id": "9bfc4c8b-0f2d-5ea4-8578-6265a1c265a8",
+              "name": "flightLine",
+              "value": "test run, no live fares",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -440,
+        260
+      ],
+      "id": "1c49624d-07ea-5705-adf5-4d6a998ddf5e",
+      "name": "Test payload"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "77ccf3b5-ea47-52a1-9b4f-d38011b278fe",
+              "name": "DRY_RUN",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "1d5a082a-9176-57ea-8bdf-f2c5800ecdac",
+              "name": "notifyEmail",
+              "value": "you@example.com",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -220,
+        120
+      ],
+      "id": "1462cc5d-2f5a-59bd-83e1-e018575bb654",
+      "name": "Safety"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Deep links into the real booking sites. No scraper, no per-run charge, and nothing\n// that silently breaks when someone reshuffles a page layout - you click and book.\nconst p      = $json;\nconst q      = encodeURIComponent;\nconst yymmdd = (iso) => iso.slice(2).replace(/-/g, '');\n\nconst links = {\n  googleFlights: `https://www.google.com/travel/flights?q=` +\n    q(`flights from ${p.origin} to ${p.destination} on ${p.departDate} through ${p.returnDate}`),\n  skyscanner: `https://www.skyscanner.net/transport/flights/` +\n    `${p.origin.toLowerCase()}/${p.destination.toLowerCase()}/` +\n    `${yymmdd(p.departDate)}/${yymmdd(p.returnDate)}/`,\n  stays: `https://www.airbnb.com/s/${q(p.stayNear)}/homes` +\n    `?checkin=${p.departDate}&checkout=${p.returnDate}&adults=${p.adults}`,\n};\n\nconst fares = (p.flights ?? []).length\n  ? p.flights.map((f, i) =>\n      `  ${i + 1}. ${f.currency} ${Math.round(f.price)} - ${f.airline}` +\n      ` (${f.stops ? `${f.stops} stop` : 'direct'})`).join('\\n')\n  : '  (no live fares were available when this fired)';\n\nconst subject = `${p.spotName} is firing - ${p.departDate} to ${p.returnDate}`;\n\nconst body = [\n  `${p.spotName}, up to ${p.peakSurf}, ${p.firingDays} days straight.`,\n  '',\n  p.forecastLines,\n  '',\n  `Fares seen at proposal time (${p.origin} to ${p.destination}):`,\n  fares,\n  '',\n  'Book it:',\n  `  Flights (Google)  ${links.googleFlights}`,\n  `  Flights (Skyscanner)  ${links.skyscanner}`,\n  `  Stays  ${links.stays}`,\n  '',\n  `Approved ${p.approvedAt ?? 'just now'}.`,\n].join('\\n');\n\nreturn [{ json: { ...p, links, subject, body } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        120
+      ],
+      "id": "3a1504dc-0b20-50d4-96b0-c0a361b36b07",
+      "name": "Build booking links"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5dea66e9-b01e-50f9-940d-c3868129fb27",
+              "leftValue": "={{ $json.DRY_RUN }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        220,
+        120
+      ],
+      "id": "e504a7c0-9589-53ea-a793-5cc0b27b9923",
+      "name": "Dry run?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// DRY_RUN is on. Report exactly what would have happened and touch nothing.\n// Flip it off in the Safety node only once this output looks right.\nconst p = $json;\nreturn [{ json: {\n  dryRun: true,\n  wouldHave: [\n    `email \"${p.subject}\" to ${p.notifyEmail}`,\n    `post the confirmation to Telegram chat ${p.telegramChatId}`,\n  ],\n  body: p.body,\n  links: p.links,\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        20
+      ],
+      "id": "97aac462-73b1-5458-8e7e-1256d3d7578b",
+      "name": "Log what would happen"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.notifyEmail }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        460,
+        240
+      ],
+      "id": "93b1b82c-6c49-55ae-9948-7b7ec79a9cdd",
+      "name": "Email the booking links",
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Build booking links').first().json.telegramChatId }}",
+        "text": "={{ 'Locked in. Booking links are in your inbox - ' + $('Build booking links').first().json.spotName + ' ' + $('Build booking links').first().json.departDate + ' to ' + $('Build booking links').first().json.returnDate }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        700,
+        240
+      ],
+      "id": "a7ea2dfa-c5fd-56f9-8599-a37bf6e928d9",
+      "name": "Tell the group it's locked in"
+    },
+    {
+      "parameters": {
+        "content": "## Triggered by approval, never by a clock\nThis workflow has no schedule.\nIt only runs when workflow 1 hands it an approved trip - which means the\nhuman gate cannot be bypassed by editing a Code node.\n\nThe manual trigger + **Test payload** let you exercise the whole thing\nwithout waiting for a real swell.",
+        "height": 320,
+        "width": 480,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        -260
+      ],
+      "id": "c4f85045-5581-52ab-98c6-8769d77758fa",
+      "name": "note-1"
+    },
+    {
+      "parameters": {
+        "content": "## DRY_RUN is on by default\nEverything irreversible sits behind this one\nboolean in **Safety**. Run it a dozen times, read the output, and only then\nflip it to false.\n\nAdd your own side effects on the false branch - that is the only place in\neither workflow that is allowed to spend money or contact anyone.",
+        "height": 320,
+        "width": 480,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -260
+      ],
+      "id": "a4a2606c-3b96-5ec9-bc3d-97ba37b3d0a2",
+      "name": "note-2"
+    }
+  ],
+  "connections": {
+    "When the crew says yes": {
+      "main": [
+        [
+          {
+            "node": "Safety",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run once (manual test)": {
+      "main": [
+        [
+          {
+            "node": "Test payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test payload": {
+      "main": [
+        [
+          {
+            "node": "Safety",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Safety": {
+      "main": [
+        [
+          {
+            "node": "Build booking links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build booking links": {
+      "main": [
+        [
+          {
+            "node": "Dry run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry run?": {
+      "main": [
+        [
+          {
+            "node": "Log what would happen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email the booking links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email the booking links": {
+      "main": [
+        [
+          {
+            "node": "Tell the group it's locked in",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

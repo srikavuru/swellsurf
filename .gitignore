@@ -1,0 +1,14 @@
+# Claude Code machine-local permission grants
+.claude/settings.local.json
+
+# Scratch output from validating the workflow JSON
+.jscheck/
+
+# Never commit real credentials — the workflows are designed so you don't have to.
+.env
+.env.*
+
+node_modules/
+*.log
+.DS_Store
+Thumbs.db

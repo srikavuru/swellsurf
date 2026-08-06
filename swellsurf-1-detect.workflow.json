@@ -1,0 +1,844 @@
+{
+  "name": "SwellSurf - 1 - detect and propose",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -820,
+        40
+      ],
+      "id": "dc5ed9b8-e815-52b8-ad22-854f3754be12",
+      "name": "Every 6h"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -820,
+        220
+      ],
+      "id": "b68ec11c-54e3-5508-bd14-a62a8efa2bf7",
+      "name": "Run once (manual)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c382644c-555d-5fc4-bf3e-0bbd077d8885",
+              "name": "spotId",
+              "value": "5842041f4e65fad6a7708b4b",
+              "type": "string"
+            },
+            {
+              "id": "d2395baa-7c3d-51b2-9da2-26abd73e03f5",
+              "name": "spotName",
+              "value": "Uluwatu",
+              "type": "string"
+            },
+            {
+              "id": "afa3d07e-73d1-5e12-ba5d-074b3fe2f6de",
+              "name": "minSurfFt",
+              "value": 6,
+              "type": "number"
+            },
+            {
+              "id": "8509b12e-6c61-5a6a-82e1-5840d121a7c3",
+              "name": "minFiringDays",
+              "value": 3,
+              "type": "number"
+            },
+            {
+              "id": "58adc8a0-87c7-55d4-94de-ddc4784d13e8",
+              "name": "tzOffsetHours",
+              "value": 8,
+              "type": "number"
+            },
+            {
+              "id": "f8241c73-344e-5766-9bd1-ab9d0af0d6ed",
+              "name": "originIata",
+              "value": "PER",
+              "type": "string"
+            },
+            {
+              "id": "21a97d14-76fe-5980-8ff5-cc527a17311d",
+              "name": "destIata",
+              "value": "DPS",
+              "type": "string"
+            },
+            {
+              "id": "e436759b-e3d7-55ac-ace8-101caa3df919",
+              "name": "stayNear",
+              "value": "Uluwatu Bali",
+              "type": "string"
+            },
+            {
+              "id": "189942de-9fad-5c6f-bff0-3ab79f09f309",
+              "name": "adults",
+              "value": 1,
+              "type": "number"
+            },
+            {
+              "id": "a2d0edc2-60be-5e44-8470-7ce4cb0a94eb",
+              "name": "currency",
+              "value": "AUD",
+              "type": "string"
+            },
+            {
+              "id": "69a7562c-fcf3-506b-a5ca-b576a411320c",
+              "name": "telegramChatId",
+              "value": "YOUR_CHAT_ID",
+              "type": "string"
+            },
+            {
+              "id": "aa555af9-197a-5b5a-9b64-a039bfa74f21",
+              "name": "amadeusHost",
+              "value": "test.api.amadeus.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -600,
+        120
+      ],
+      "id": "4897e544-8e87-5622-98ef-32b759381d65",
+      "name": "Config"
+    },
+    {
+      "parameters": {
+        "url": "https://services.surfline.com/kbyg/spots/forecasts/wave",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "spotId",
+              "value": "={{ $json.spotId }}"
+            },
+            {
+              "name": "days",
+              "value": "5"
+            },
+            {
+              "name": "intervalHours",
+              "value": "6"
+            },
+            {
+              "name": "units[waveHeight]",
+              "value": "FT"
+            },
+            {
+              "name": "units[swellHeight]",
+              "value": "M"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -380,
+        120
+      ],
+      "id": "a1df6426-bdbd-52ff-ae84-e79b1133b2aa",
+      "name": "Surfline wave",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "https://services.surfline.com/kbyg/spots/forecasts/wind",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "spotId",
+              "value": "={{ $('Config').first().json.spotId }}"
+            },
+            {
+              "name": "days",
+              "value": "5"
+            },
+            {
+              "name": "intervalHours",
+              "value": "6"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        120
+      ],
+      "id": "6caf75bc-6865-50f1-81f3-79dccc67c17c",
+      "name": "Surfline wind",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Join Surfline's wave + wind series on timestamp and flag which intervals are firing.\nconst cfg     = $('Config').first().json;\nconst waveRes = $('Surfline wave').first().json ?? {};\nconst wave    = waveRes.data?.wave ?? [];\nconst wind    = $('Surfline wind').first().json?.data?.wind ?? [];\n\nif (!wave.length) throw new Error('Surfline returned no wave data - check the spotId in Config');\n\nconst windAt  = new Map(wind.map((w) => [w.timestamp, w]));\nconst COMPASS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst compass = (deg) => COMPASS[Math.round((deg ?? 0) / 22.5) % 16];\n\n// Surfline timestamps are UTC seconds. Shift to the spot's local day before bucketing,\n// or a swell that starts Friday evening in Bali lands on Thursday in your groupings.\n// The response carries the spot's own offset, so changing spotId moves the timezone\n// with it - the Config value is only a fallback.\nconst tzHours  = waveRes.associated?.utcOffset ?? cfg.tzOffsetHours;\nconst localDay = (ts) => new Date((ts + tzHours * 3600) * 1000).toISOString().slice(0, 10);\n\nreturn wave.map((w) => {\n  const wnd      = windAt.get(w.timestamp) ?? {};\n  const swell    = w.swells.reduce((a, b) => (b.height > a.height ? b : a));\n  const offshore = wnd.directionType === 'Offshore';\n\n  return { json: {\n    ts: w.timestamp,\n    day: localDay(w.timestamp),\n    surfMin: w.surf.min,\n    surfMax: w.surf.max,\n    humanRelation: w.surf.humanRelation,\n    swellHeightM: swell.height,\n    swellPeriodS: swell.period,\n    swellDir: compass(swell.direction),\n    windKts: Math.round(wnd.speed ?? 0),\n    windDir: compass(wnd.direction),\n    windType: wnd.directionType ?? 'unknown',\n    offshore,\n    firing: w.surf.max >= cfg.minSurfFt && offshore,\n  } };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        60,
+        120
+      ],
+      "id": "8f522d00-c4c6-5830-951c-c00c6201dc70",
+      "name": "Merge forecast"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Is this a swell EVENT? Needs minFiringDays *consecutive* local days that each\n// contain at least one firing interval.\nconst cfg  = $('Config').first().json;\nconst rows = $input.all().map((i) => i.json);\n\nconst byDay = new Map();\nfor (const r of rows) {\n  const d = byDay.get(r.day) ?? { day: r.day, firing: false, best: null };\n  if (r.firing && (!d.best || r.surfMax > d.best.surfMax)) d.best = r;\n  d.firing = d.firing || r.firing;\n  byDay.set(r.day, d);\n}\nconst days = [...byDay.values()].sort((a, b) => a.day.localeCompare(b.day));\n\nconst nextDay = (iso) => {\n  const d = new Date(iso + 'T00:00:00Z');\n  d.setUTCDate(d.getUTCDate() + 1);\n  return d.toISOString().slice(0, 10);\n};\n\n// Longest run of CONSECUTIVE firing days. Counting scattered days (Mon + Wed + Fri)\n// as a \"3 day swell\" is the easy mistake here - you'd fly in for a flat Tuesday.\nlet best = [], run = [];\nfor (const d of days) {\n  const contiguous = run.length && nextDay(run[run.length - 1].day) === d.day;\n  run = d.firing ? (contiguous ? [...run, d] : [d]) : [];\n  if (run.length > best.length) best = run;\n}\n\nconst swellOn    = best.length >= cfg.minFiringDays;\nconst departDate = best.length ? best[0].day : null;\nconst returnDate = best.length ? nextDay(best[best.length - 1].day) : null;\n\n// Peak conditions come from FIRING intervals only. Take the max over all rows and you\n// can end up announcing \"offshore and clean\" using the wind from an onshore hour.\nconst firing = rows.filter((r) => r.firing);\nconst peak   = firing.length ? firing.reduce((a, b) => (b.surfMax > a.surfMax ? b : a)) : null;\n\nconst forecastLines = best.filter((d) => d.best).map((d) =>\n  `${d.day}   ${d.best.surfMin}-${d.best.surfMax}ft   ` +\n  `${d.best.swellHeightM.toFixed(1)}m @ ${d.best.swellPeriodS}s ${d.best.swellDir}   ` +\n  `${d.best.windKts}kt ${d.best.windDir}`\n).join('\\n');\n\nreturn [{ json: {\n  swellOn,\n  // Stable id for this swell: every 6h run that sees the same swell computes the same\n  // key, which is what makes the dedupe downstream work.\n  eventKey: swellOn ? `${cfg.spotId}:${departDate}` : null,\n  spotName: cfg.spotName,\n  departDate,\n  returnDate,\n  firingDays: best.length,\n  peakSurf:  peak ? `${peak.surfMin}-${peak.surfMax}ft` : null,\n  peakHuman: peak?.humanRelation ?? null,\n  peakWind:  peak ? `${peak.windKts}kt ${peak.windDir}` : null,\n  forecastLines,\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        120
+      ],
+      "id": "3629b9c5-63a8-516a-b5b3-bcdff03ac5ff",
+      "name": "Evaluate swell"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b7aa29da-ef83-538b-a3d6-60aac1c43712",
+              "leftValue": "={{ $json.swellOn }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        500,
+        120
+      ],
+      "id": "c5aabb5b-59b8-5950-a744-81e8103103cd",
+      "name": "Swell on?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Dedupe. Without this a 3 day swell satisfies the condition on ~12 consecutive\n// 6-hourly runs, so you'd propose - and pay for - the same trip 12 times.\n//\n// CAVEAT: n8n only persists static data on PRODUCTION runs (workflow active, fired by\n// its real trigger). Manual test executions always look \"new\". That's n8n, not this code.\nconst s     = $json;\nconst store = $getWorkflowStaticData('global');\nstore.claims = store.claims ?? {};\n\nconst THIRTY_DAYS = 30 * 24 * 3600 * 1000;\nconst now = Date.now();\nfor (const [key, claim] of Object.entries(store.claims)) {\n  if (now - Date.parse(claim.claimedAt) > THIRTY_DAYS) delete store.claims[key];\n}\n\nconst alreadyProposed = Boolean(store.claims[s.eventKey]);\n\n// Claim BEFORE spending anything. Losing one proposal to a flaky API is cheap;\n// double-charging the flight search and spamming the group chat is not.\nif (!alreadyProposed) store.claims[s.eventKey] = { claimedAt: new Date().toISOString() };\n\nreturn [{ json: { ...s, alreadyProposed } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        40
+      ],
+      "id": "b523ee92-78f1-5062-9bff-ecf566e33af0",
+      "name": "Claim this swell"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0ff2d443-af84-5db4-bbdf-532896bb0ef2",
+              "leftValue": "={{ !$json.alreadyProposed }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        940,
+        40
+      ],
+      "id": "0981f401-5b2b-545d-afab-d84ed79fa1bf",
+      "name": "Not proposed yet?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('Config').first().json.amadeusHost }}/v1/security/oauth2/token",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "client_credentials"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        -60
+      ],
+      "id": "d2640410-3837-597f-aad2-e9770c7b782a",
+      "name": "Amadeus token",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $('Config').first().json.amadeusHost }}/v2/shopping/flight-offers",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "originLocationCode",
+              "value": "={{ $('Config').first().json.originIata }}"
+            },
+            {
+              "name": "destinationLocationCode",
+              "value": "={{ $('Config').first().json.destIata }}"
+            },
+            {
+              "name": "departureDate",
+              "value": "={{ $('Evaluate swell').first().json.departDate }}"
+            },
+            {
+              "name": "returnDate",
+              "value": "={{ $('Evaluate swell').first().json.returnDate }}"
+            },
+            {
+              "name": "adults",
+              "value": "={{ $('Config').first().json.adults }}"
+            },
+            {
+              "name": "currencyCode",
+              "value": "={{ $('Config').first().json.currency }}"
+            },
+            {
+              "name": "max",
+              "value": "5"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1380,
+        -60
+      ],
+      "id": "087c67d3-f1f3-517c-b3b4-bffc27897083",
+      "name": "Search flights",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Amadeus flight-offers -> the 3 cheapest. The search node is set to continue on error,\n// so \"no fares\" is a normal outcome here: the proposal still goes out, just without prices.\nconst cfg      = $('Config').first().json;\nconst res      = $input.first().json ?? {};\nconst offers   = Array.isArray(res.data) ? res.data : [];\nconst carriers = res.dictionaries?.carriers ?? {};\n\nconst priced = offers.map((o) => {\n  const segs = o.itineraries?.[0]?.segments ?? [];\n  const code = o.validatingAirlineCodes?.[0] ?? segs[0]?.carrierCode;\n  return {\n    price: Number(o.price?.grandTotal ?? o.price?.total),\n    currency: o.price?.currency ?? cfg.currency,\n    airline: carriers[code] ?? code ?? 'unknown',\n    stops: Math.max(segs.length - 1, 0),\n    departsAt: segs[0]?.departure?.at ?? null,\n  };\n})\n.filter((o) => Number.isFinite(o.price))\n.sort((a, b) => a.price - b.price)\n.slice(0, 3);\n\nconst top = priced[0];\nconst flightLine = top\n  ? `from ${top.currency} ${Math.round(top.price)} return, ${top.airline}` +\n    (top.stops ? `, ${top.stops} stop` : ', direct')\n  : 'live fares unavailable right now - check manually';\n\nreturn [{ json: { flightsFound: priced.length, flightLine, options: priced } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        -60
+      ],
+      "id": "6931ccda-3ca3-5a66-b04a-596b87527fd0",
+      "name": "Pick cheapest flights"
+    },
+    {
+      "parameters": {
+        "jsCode": "const s = $('Evaluate swell').first().json;\nconst c = $('Config').first().json;\nconst f = $input.first().json;\n\nconst proposal = [\n  `${s.spotName} is about to fire.`,\n  '',\n  `Surf     up to ${s.peakSurf}${s.peakHuman ? ` (${s.peakHuman})` : ''}`,\n  `Wind     ${s.peakWind}, offshore`,\n  `Window   ${s.firingDays} days straight, ${s.departDate} to ${s.returnDate}`,\n  '',\n  s.forecastLines,\n  '',\n  `Flights ${c.originIata} to ${c.destIata}: ${f.flightLine}`,\n  '',\n  'Say yes and I will send the booking links round.',\n].join('\\n');\n\nreturn [{ json: { proposal } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        -60
+      ],
+      "id": "a217ce02-baf9-5479-bece-3f92af29250f",
+      "name": "Build proposal"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Config').first().json.telegramChatId }}",
+        "message": "={{ $json.proposal }}",
+        "responseType": "approval",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "🤙 I'm in",
+            "disapproveLabel": "😔 Can't make it"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "limitType": "afterTimeInterval",
+              "resumeAmount": 12,
+              "resumeUnit": "hours"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2040,
+        -60
+      ],
+      "id": "6b7a2bc7-47ad-550f-a6eb-6a235d6764eb",
+      "name": "Ask the crew",
+      "webhookId": "ed7d04a6-211a-5937-a759-661cbeed3bf8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "489775c3-091b-599b-98a2-510e0ac806a0",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2260,
+        -60
+      ],
+      "id": "97e021dc-9bac-5d38-b833-845c27694519",
+      "name": "Approved?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rebuild the trip context for the executor. The approval node's own output is only\n// { data: { approved, respondedAt } }, so pull the real detail back off the earlier nodes.\nconst s = $('Evaluate swell').first().json;\nconst f = $('Pick cheapest flights').first().json;\nconst c = $('Config').first().json;\n\nreturn [{ json: {\n  eventKey: s.eventKey,\n  spotName: s.spotName,\n  departDate: s.departDate,\n  returnDate: s.returnDate,\n  firingDays: s.firingDays,\n  peakSurf: s.peakSurf,\n  forecastLines: s.forecastLines,\n  origin: c.originIata,\n  destination: c.destIata,\n  stayNear: c.stayNear,\n  adults: c.adults,\n  currency: c.currency,\n  telegramChatId: c.telegramChatId,\n  flights: f.options,\n  flightLine: f.flightLine,\n  approvedAt: $json.data?.respondedAt ?? null,\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        -160
+      ],
+      "id": "ba193224-e489-58c7-ba24-3f99b74fd9fd",
+      "name": "Build booking payload"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "PASTE_EXECUTOR_WORKFLOW_ID",
+          "mode": "id"
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2700,
+        -160
+      ],
+      "id": "77f1ad1f-d3c4-520d-8460-e0c841be069f",
+      "name": "Hand off to booking"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Declined, or the approval window expired. The eventKey stays claimed, so this\n// particular swell will not be proposed again - no nagging every 6 hours.\nconst s = $('Evaluate swell').first().json;\nreturn [{ json: {\n  outcome: 'not this time',\n  eventKey: s.eventKey,\n  spot: s.spotName,\n  window: `${s.departDate} to ${s.returnDate}`,\n  respondedAt: $json.data?.respondedAt ?? null,\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        60
+      ],
+      "id": "f49edd4b-2d3f-52d7-a9ab-f66c82942e41",
+      "name": "Not this time"
+    },
+    {
+      "parameters": {
+        "content": "## 1 - Watch\nSurfline's `kbyg` endpoint is public: no key, no relay.\nIt *is* behind Cloudflare though, which 403s a default API-client\nUser-Agent - hence the browser UA header on both nodes. That is almost\ncertainly why other builds proxy this through r.jina.ai.\n\nEvery tunable lives in **Config**, so no threshold is ever buried in a\nCode node. Swap `spotId` for your break (it's in the surfline.com URL);\nthe timezone follows automatically from the API response.",
+        "height": 320,
+        "width": 500,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -860,
+        -300
+      ],
+      "id": "c4f85045-5581-52ab-98c6-8769d77758fa",
+      "name": "note-1"
+    },
+    {
+      "parameters": {
+        "content": "## 2 - Only once per swell\nThe forecast stays good for ~12 consecutive runs.\n**Claim this swell** hashes the swell into a stable `eventKey` and\nrecords it *before* anything costs money.\n\nThis is the single biggest thing missing from most versions of this idea.",
+        "height": 300,
+        "width": 460,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -280
+      ],
+      "id": "a4a2606c-3b96-5ec9-bc3d-97ba37b3d0a2",
+      "name": "note-2"
+    },
+    {
+      "parameters": {
+        "content": "## 3 - Price it\nAmadeus free tier, real API, no scraper and no per-run charge.\nCredentials live in a **Custom Auth** credential, never in this file.\n\n`Search flights` continues on error on purpose: a fare outage should\nstill let the proposal go out, just without prices.",
+        "height": 300,
+        "width": 460,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        -320
+      ],
+      "id": "5e1ca237-f03f-539a-b4de-3717d9438c3e",
+      "name": "note-3"
+    },
+    {
+      "parameters": {
+        "content": "## 4 - The real gate\n`sendAndWait` genuinely suspends the execution until a\nhuman taps a button. It cannot be faked by a Code node returning true,\nwhich is exactly why it is the right primitive here.\n\nNo approval within 12h and it resumes down the decline branch.",
+        "height": 300,
+        "width": 440,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2020,
+        -320
+      ],
+      "id": "33c9b0ca-7371-5ced-9419-66fe3bb78a6f",
+      "name": "note-4"
+    }
+  ],
+  "connections": {
+    "Every 6h": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run once (manual)": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Surfline wave",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Surfline wave": {
+      "main": [
+        [
+          {
+            "node": "Surfline wind",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Surfline wind": {
+      "main": [
+        [
+          {
+            "node": "Merge forecast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge forecast": {
+      "main": [
+        [
+          {
+            "node": "Evaluate swell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate swell": {
+      "main": [
+        [
+          {
+            "node": "Swell on?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Swell on?": {
+      "main": [
+        [
+          {
+            "node": "Claim this swell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claim this swell": {
+      "main": [
+        [
+          {
+            "node": "Not proposed yet?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Not proposed yet?": {
+      "main": [
+        [
+          {
+            "node": "Amadeus token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Amadeus token": {
+      "main": [
+        [
+          {
+            "node": "Search flights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search flights": {
+      "main": [
+        [
+          {
+            "node": "Pick cheapest flights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick cheapest flights": {
+      "main": [
+        [
+          {
+            "node": "Build proposal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build proposal": {
+      "main": [
+        [
+          {
+            "node": "Ask the crew",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask the crew": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Build booking payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not this time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build booking payload": {
+      "main": [
+        [
+          {
+            "node": "Hand off to booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
